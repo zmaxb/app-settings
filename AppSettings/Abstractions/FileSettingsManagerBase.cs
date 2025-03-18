@@ -10,7 +10,7 @@ public abstract class FileSettingsManagerBase<TSettings> : ISettingsManager<TSet
         SettingsFilePath = settingsFilePath;
     }
 
-    public string SettingsFilePath { get; protected set; }
+    protected string SettingsFilePath { get; set; }
 
     public abstract Task<TSettings> LoadSettingsAsync();
 

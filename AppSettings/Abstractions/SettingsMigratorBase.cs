@@ -6,5 +6,5 @@ public abstract class SettingsMigratorBase<TSettingsBase>(int actualSettingsVers
 {
     public readonly int ActualSettingsVersion = actualSettingsVersion;
 
-    public abstract bool Migrate(ref TSettingsBase settings, ref dynamic settingsAsDynamic);
+    public abstract bool Migrate(ref TSettingsBase settings, ref dynamic? settingsAsDynamic);
 }

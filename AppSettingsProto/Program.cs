@@ -5,55 +5,43 @@ namespace AppSettingsProto;
 
 public class AppSettings : SettingsBase
 {
-    public new static readonly int ActualSettingsVersion = 2;
+    public static readonly int ActualSettingsVersion = 3;
     public bool ShowWelcomeMessage { get; set; } = true;
-    public string SuperField { get; set; } = string.Empty;
+    public string SuperField { get; set; } = "Max";
 }
 
 internal class PersonalSettings : SettingsBase
 {
-    public string UserName { get; set; } = string.Empty;
+    public string UserName { get; set; } = "Max";
     public bool AllowInput { get; set; } = true;
-
-}
-
-internal class GlobalSettings : SettingsBase
-{
-    public int SomeCounter { get; set; }
-    public bool AllowMessages { get; set; }
 }
 
 internal static class Program
 {
-
     private static AppSettings _appSettings = new AppSettings();
-    private static PersonalSettings _personalSettings = new PersonalSettings();
+    private static JsonFileSettingsManager<AppSettings, AppSettingsMigrator> _appSettingsManager;
     
+    private static PersonalSettings _personalSettings = new PersonalSettings();
+
     static async Task Main(string[] args)
     {
         await InitAllSettingsAsync();
-        // WriteLine(_appSettings.ShowWelcomeMessage);
-        WriteLine(_personalSettings.UserName);
+        WriteLine(_appSettings.SuperField);
+        
+        _appSettings.SuperField = "Updated Value";
+        await _appSettingsManager.SaveSettingsAsync(_appSettings);
     }
 
     private static async Task InitAllSettingsAsync()
     {
-    
         var userProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        AppSettingsMigrator appMigrator = new(AppSettings.ActualSettingsVersion); 
-        
-        //  AppSettings
-        var appSettingsManager = new JsonFileSettingsManager<AppSettings, AppSettingsMigrator>(
-            Path.Combine(userProfilePath, "AppSettings.config"), appMigrator);
-        
-        _appSettings = await appSettingsManager.LoadSettingsAsync();
-        
-        // PersonalSettings
-        // var personalSettingsManager = new JsonFileSettingsManager<PersonalSettings>(
-        //     Path.Combine(userProfilePath, "PersonalSettings.config"), TODO);
-        // _personalSettings = await personalSettingsManager.LoadSettingsAsync();
-         // _personalSettings.UserName = "Max";
-         // await personalSettingsManager.SaveSettingsAsync(_personalSettings);
+        AppSettingsMigrator appMigrator = new(AppSettings.ActualSettingsVersion);
 
+        var settingsFilePath = Path.Combine(userProfilePath, "AppSettings.config");
+         _appSettingsManager =
+            new JsonFileSettingsManager<AppSettings, AppSettingsMigrator>(settingsFilePath, appMigrator);
+
+        _appSettings = await _appSettingsManager.LoadSettingsAsync();
+        
     }
 }
