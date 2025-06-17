@@ -1,6 +1,8 @@
 ﻿using SettingsService;
 using static System.Console;
 
+// ReSharper disable UnusedMember.Global
+
 namespace AppSettingsProto;
 
 public class AppSettings : SettingsBase
@@ -10,24 +12,16 @@ public class AppSettings : SettingsBase
     public string SuperField { get; set; } = "Max";
 }
 
-internal class PersonalSettings : SettingsBase
-{
-    public string UserName { get; set; } = "Max";
-    public bool AllowInput { get; set; } = true;
-}
-
 internal static class Program
 {
-    private static AppSettings _appSettings = new AppSettings();
-    private static JsonFileSettingsManager<AppSettings, AppSettingsMigrator> _appSettingsManager;
-    
-    private static PersonalSettings _personalSettings = new PersonalSettings();
+    private static AppSettings _appSettings = new();
+    private static JsonFileSettingsManager<AppSettings, AppSettingsMigrator> _appSettingsManager = null!;
 
-    static async Task Main(string[] args)
+    private static async Task Main()
     {
         await InitAllSettingsAsync();
         WriteLine(_appSettings.SuperField);
-        
+
         _appSettings.SuperField = "Updated Value";
         await _appSettingsManager.SaveSettingsAsync(_appSettings);
     }
@@ -38,10 +32,9 @@ internal static class Program
         AppSettingsMigrator appMigrator = new(AppSettings.ActualSettingsVersion);
 
         var settingsFilePath = Path.Combine(userProfilePath, "AppSettings.config");
-         _appSettingsManager =
+        _appSettingsManager =
             new JsonFileSettingsManager<AppSettings, AppSettingsMigrator>(settingsFilePath, appMigrator);
 
         _appSettings = await _appSettingsManager.LoadSettingsAsync();
-        
     }
 }
